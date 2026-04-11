@@ -1,1 +1,87 @@
+// js/engine.js
+const cvs = document.getElementById('gameCanvas');
+const ctx = cvs.getContext('2d');
+
+// Global Game Variables
+var ppl = [], projs = [], bldgs = [];
+var curPwr = 'spawn-normal', wallOpen = false, civOn = true;
+const teams = ['blue', 'red', 'green', 'yellow', 'orange', 'purple'];
+const colors = { blue:'#3498db', red:'#e74c3c', green:'#2ecc71', yellow:'#f1c40f', orange:'#e67e22', purple:'#9b59b6', luffy:'#c0392b', gojo:'#bdc3c7', naruto:'#f39c12', goku:'#e67e22', kurama:'#d35400' };
+var tIdx = 0;
+
+// Setup Canvas Size
+function rsz() { cvs.width = window.innerWidth - 280; cvs.height = window.innerHeight; }
+window.addEventListener('resize', rsz); rsz();
+
+// UI Button Functions
+function toggleTeam() {
+    tIdx = (tIdx + 1) % teams.length;
+    let t = teams[tIdx], btn = document.getElementById('teamToggle');
+    btn.style.background = colors[t]; btn.innerText = `Team: ${t.toUpperCase()}`;
+}
+function toggleWall() { 
+    wallOpen = !wallOpen; 
+    document.getElementById('wallBtn').innerText = wallOpen ? "Wall: OPEN" : "Wall: CLOSED"; 
+    document.getElementById('wallBtn').style.background = wallOpen ? "#e67e22" : "#c0392b"; 
+}
+function toggleCiv() { 
+    civOn = !civOn; 
+    document.getElementById('civBtn').innerText = civOn ? "Civ: ON" : "Civ: OFF"; 
+}
+function setPower(p, btn) {
+    curPwr = p; document.getElementById('current-tool').innerText = p.replace('spawn-', '').toUpperCase();
+    document.querySelectorAll('#sidebar button').forEach(b => { if(!b.id.includes('Toggle') && !b.id.includes('Btn')) b.classList.remove('active'); });
+    btn.classList.add('active');
+}
+
+// Mouse Clicks
+cvs.addEventListener('mousedown', (e) => {
+    let r = cvs.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    
+    if(curPwr === 'cannon') { 
+        let pE = false; 
+        ppl.forEach(p => { if(p.r === 'elephant' && p.t === teams[tIdx] && Math.hypot(p.x - x, p.y - y) < 60 && !p.hC){ p.hC = true; pE = true; }}); 
+        if(!pE && ppl.filter(p => p.t === teams[tIdx]).length < 150) ppl.push(new Person(x, y, teams[tIdx], 'cannon')); 
+    }
+    else if(curPwr.startsWith('spawn-')) { 
+        let rl = curPwr.split('-')[1];
+        let tm = ['luffy', 'gojo', 'naruto', 'goku'].includes(rl) ? rl : teams[tIdx]; 
+        if(ppl.filter(p => p.t === tm).length < 150) ppl.push(new Person(x, y, tm, rl)); 
+    }
+    else { 
+        ppl.forEach(p => { 
+            if(Math.hypot(p.x - x, p.y - y) < (p.r === 'elephant' ? 120 : 100)) { 
+                if(curPwr === 'fire') { p.hF = true; p.hI = p.hL = p.hW = false; } 
+                if(curPwr === 'ice') { p.hI = true; p.hF = p.hL = p.hW = false; } 
+                if(curPwr === 'light') { p.hL = true; p.hF = p.hI = p.hW = false; } 
+                if(curPwr === 'wind') { p.hW = true; p.hF = p.hI = p.hL = false; } 
+                if(curPwr === 'weapon' && !p.isA && p.r !== 'elephant' && p.r !== 'cannon') p.wpn = Math.random() > 0.5 ? 'sword' : 'spear'; 
+                if(curPwr === 'strike') { p.hp = 0; p.ft = 10; } 
+            }
+        });
+    }
+});
+
+// Game Animation Loop
+function animate() {
+    ctx.fillStyle = '#2d5a27'; ctx.fillRect(0, 0, cvs.width, cvs.height); 
+    ctx.strokeStyle = 'rgba(0,0,0,0.1)'; ctx.lineWidth = 1;
+    for(let i=0; i<cvs.width; i+=50){ ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, cvs.height); ctx.stroke(); } 
+    for(let j=0; j<cvs.height; j+=50){ ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(cvs.width, j); ctx.stroke(); }
+    
+    if(!wallOpen){ ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(cvs.width/2 - 5, 0, 10, cvs.height); }
+    
+    bldgs.forEach(b => b.draw()); 
+    ppl = ppl.filter(p => p.hp > 0); 
+    ppl.forEach(p => { p.update(); p.draw(); });
+    
+    projs.forEach(p => { p.update(); p.draw(); }); 
+    projs = projs.filter(p => p.act);
+    
+    document.getElementById('total-count').innerText = ppl.length;
+    requestAnimationFrame(animate);
+} 
+
+// Start Game
+setTimeout(animate, 100); 
 
