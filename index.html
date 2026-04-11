@@ -1,1 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebBox V21 - GitHub Edition</title>
+    <style>
+        body { margin: 0; display: flex; background: #111; color: white; font-family: sans-serif; overflow: hidden; user-select: none; }
+        #sidebar { width: 280px; background: #1a1a1a; height: 100vh; padding: 15px; box-sizing: border-box; border-right: 3px solid #444; overflow-y: auto; z-index: 10; }
+        #gameCanvas { flex-grow: 1; background: #2d5a27; cursor: crosshair; }
+        button { width: 100%; padding: 6px; margin-bottom: 4px; cursor: pointer; background: #333; color: white; border: 1px solid #555; border-radius: 4px; font-weight: bold; font-size: 0.85em; }
+        button:hover { background: #444; }
+        button.active { background: #e67e22; border-color: #f1c40f; }
+        .team-btn { border-width: 2px; }
+        .anime-btn { background: #f1c40f; color: #111; border-color: #f39c12; }
+        .stat-panel { background: rgba(0,0,0,0.5); padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em; text-align: center; border: 1px solid #444; }
+        h2 { margin: 0 0 5px 0; color: #f1c40f; text-align: center; font-size: 1.2em; }
+        hr { border: 0; border-top: 1px solid #444; margin: 8px 0; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    </style>
+</head>
+<body>
 
+    <div id="sidebar">
+        <h2>WEBBOX V21</h2>
+        <div class="stat-panel">
+            <b style="font-size:1.1em">Total Units: <span id="total-count" style="color:#2ecc71">0</span></b><br>
+            Tool: <span id="current-tool" style="color:#f1c40f;">Normal</span>
+        </div>
+        
+        <button id="teamToggle" onclick="toggleTeam()" class="team-btn" style="background:#3498db">Team: BLUE</button>
+        <div class="grid-2">
+            <button onclick="toggleCiv()" id="civBtn" style="background:#8e44ad">Civ: ON</button>
+            <button onclick="toggleWall()" id="wallBtn" style="background:#c0392b">Wall: CLOSED</button>
+        </div>
+        <hr>
+        <div class="grid-2">
+            <button onclick="setPower('spawn-normal', this)" class="active">Normal</button>
+            <button onclick="setPower('spawn-archer', this)">Archer</button>
+            <button onclick="setPower('spawn-knight', this)">Knight</button>
+            <button onclick="setPower('spawn-ninja', this)">Ninja</button>
+            <button onclick="setPower('spawn-swapper', this)">Swapper</button>
+            <button onclick="setPower('spawn-shifter', this)">Shifter</button>
+            <button onclick="setPower('spawn-elephant', this)">Elephant</button>
+            <button onclick="setPower('cannon', this)">Cannon</button>
+        </div>
+        <hr>
+        <div class="grid-2">
+            <button onclick="setPower('spawn-luffy', this)" class="anime-btn">Luffy</button>
+            <button onclick="setPower('spawn-gojo', this)" class="anime-btn">Gojo</button>
+            <button onclick="setPower('spawn-naruto', this)" class="anime-btn">Naruto</button>
+            <button onclick="setPower('spawn-goku', this)" class="anime-btn">Goku</button>
+        </div>
+        <hr>
+        <div class="grid-2">
+            <button onclick="setPower('weapon', this)">🗡️ Weapon</button>
+            <button onclick="setPower('strike', this)">⚡ Smite</button>
+            <button onclick="setPower('fire', this)">🔥 Fire</button>
+            <button onclick="setPower('ice', this)">❄️ Ice</button>
+            <button onclick="setPower('light', this)">✨ Light</button>
+            <button onclick="setPower('wind', this)">🌪️ Wind</button>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="js/engine.js"></script>
+    <script src="js/classes.js"></script>
+    
+</body>
+</html>
